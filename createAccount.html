@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Log In</title>
+    <link id="theme" rel="stylesheet" href="./css/darkStyle.css">
+  </head>
+  <body>
+    <div class="login-header">
+      <img src="./images/flightdash_icon.png" id="login-logo">
+      <h1 id="login-h1">Create Account</h1>
+    </div>
+
+    <div class="form-group">
+            <label for="usr">User Name:</label>
+            <input type="text" class="form-control" id="txtUsr">
+        </div>
+        <div class="form-group">
+            <label for="pwd">Password:</label>
+            <input type="password" class="form-control" id="txtPwd">
+        </div>
+        <div class="form-group">
+            <label for="pwd2">Re-type Password:</label>
+            <input type="password" class="form-control" id="txtPwd2">
+        </div>
+        <div class="button-login">
+  <button id="btn-submit">Create</button>
+        </div>
+
+        <label  id="lbl"></label>
+        <script>
+          const electron = require('electron')
+          const { ipcRenderer } = electron
+
+          //IF PWD AND PWD2 EQUAL, USR NOT TAKEN, AUTH SUCCESSFULLY CREATED
+          document.getElementById("btn-submit").addEventListener("click", function (e) {
+            ipcRenderer.send('created-account', 'ping')
+          })
+          //ELSE SAY FAILED TO CREATE
+        </script>
+  </body>
+</html>

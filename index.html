@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		<meta name="description" content="">
+		<meta name="keywords" content="">
+		<meta name="author" content="Nicholas Wissinger">
+		<title>FlightDash</title>
+		<link id="theme" rel="stylesheet" href="./css/darkStyle.css">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+		<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+		<script>window.$ = window.jQuery = require('jquery')</script>
+		<script src="./node_modules/leaflet-providers/leaflet-providers.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.geodesic"></script>
+	</head>
+	<body>
+		<div id="title-bar">
+			<div id="title-bar-btns">
+				<button id="close-btn"><img src="./images/close.png" id = "close-image"></button>
+				<button id="max-btn"><img src="./images/max.png" id = "max-image"></button>
+				<button id="min-btn"><img src="./images/min.png" id = "min-image"></button>
+				<p>Development Stage V. 0.1.0</p>
+			</div>
+			<script>
+				const electron = require('electron')
+				const { ipcRenderer } = electron
+
+				document.getElementById("min-btn").addEventListener("click", function (e) {
+				  ipcRenderer.send('window-receive', 'minimize')
+				});
+
+				document.getElementById("max-btn").addEventListener("click", function (e) {
+				    ipcRenderer.send('window-receive', 'maximize')
+				});
+
+				document.getElementById("close-btn").addEventListener("click", function (e) {
+				  ipcRenderer.send('window-receive', 'close')
+				});
+
+			</script>
+		</div>
+		<div class="sidenav">
+			<div class="header">
+				<img src="./images/flightdash_icon.png" id ="logo">
+				<h1>FlightDash</h1>
+			</div>
+			<a id="current" href="index.html">Dashboard</a>
+			<a href="flightSearch.html">Search Flights</a>
+			<a href="account.html">Account</a>
+			<div class="bSidenav">
+				<a href="settings.html">Settings</a>
+			</div>
+		</div>
+		<div class="main">
+			<h1>Welcome back Username</h1>
+			<div id="upcomingFlights" class="outer-container">
+				<p>Upcoming Flights</p>
+				<div class="inner-container">
+					<table id = "upcomingFlightsTable"></table>
+					<script>
+						$(document).ready(function () {
+
+						    // FETCHING DATA FROM JSON FILE
+						    $.getJSON('flights.json',
+						            function (data) {
+						        var tableData = '';
+
+						        //GRABBING HEADER INFORMATION
+						        var headerInfo = Object.keys(data[0]);
+						        tableData += '<tr>';
+						        for(i = 0; i < headerInfo.length; i++) {
+						          tableData += '<td>' + headerInfo[i] + '</td>';
+						        }
+						        tableData += '</tr>';
+
+						        var counter = 0;
+						        // ITERATING THROUGH OBJECTS
+						        $.each(data, function (key, value) {
+						            //CONSTRUCTION OF ROWS HAVING
+						            // DATA FROM JSON OBJECT
+						            if(counter < 6) {
+						            tableData += '<tr>';
+						            for(i = 0; i < headerInfo.length; i++) {
+						              if(i == 0) {
+						                tableData += '<td id="linkCell"><a href="' + value[headerInfo[i]] + '">View</a></td>';
+						              }
+						              else {
+						                tableData += '<td>' + value[headerInfo[i]] + '</td>';
+						              }
+						            }
+						            tableData += '</tr>';
+						            counter++;
+						          }
+						        });
+
+						        //INSERTING ROWS INTO TABLE
+						        $('#upcomingFlightsTable').append(tableData);
+						    });
+						});
+					</script>
+				</div>
+			</div>
+			<div id="flightMap" class="outer-container">
+				<p>Map</p>
+				<div class="inner-container">
+					<div id="yourFlights"></div>
+					<script>
+						var mymap = L.map('yourFlights').setView([39.4319846,-77.8072091], 3);
+
+						L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+						    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+						    maxZoom: 18,
+						    id: 'mapbox/streets-v11',
+						    tileSize: 512,
+						    zoomOffset: -1,
+						    accessToken: 'pk.eyJ1IjoibmljLXdpc3MiLCJhIjoiY2tsdngyYzl6MGRudjJxampyMXI2eDk5NiJ9.1_ZmPIX5F24SATw7fKHEnA'
+						}).addTo(mymap);
+						L.tileLayer.provider('CartoDB.DarkMatter').addTo(mymap);
+            L.geodesic([[25.7915855,-80.2833781],[38.9531162,-77.4565388]]).addTo(mymap);
+            L.geodesic([[34.9907061,-78.8871748],[38.9531162,-77.4565388]], {color: 'red'}).addTo(mymap);
+            L.geodesic([[52.5, 13.35],[33.82, -118.38]]).addTo(mymap);
+					</script>
+				</div>
+			</div>
+			<div id="updatesNews" class="outer-container">
+				<p>Updates & News</p>
+				<div class="inner-container">
+					<p>First Release Coming Soon!</p>
+				</div>
+			</div>
+		</div>
+		<div class="footer"></div>
+	</body>
+</html>

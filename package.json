@@ -1,0 +1,23 @@
+{
+  "name": "FlightDash",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "server": "cd Flight-Engine && npm run start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "custom-electron-titlebar": "^3.2.6",
+    "electron": "^11.2.3",
+    "jquery": "^3.5.1",
+    "leaflet": "^1.7.1",
+    "leaflet-providers": "^1.11.0",
+    "leaflet.geodesic": "^2.5.5-0",
+    "moment": "^2.29.1",
+    "pikaday": "^1.8.2"
+  }
+}

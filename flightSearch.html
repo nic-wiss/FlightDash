@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		<meta name="description" content="">
+		<meta name="keywords" content="">
+		<meta name="author" content="Nicholas Wissinger">
+		<title>FlightDash</title>
+		<link id="theme" rel="stylesheet" href="./css/darkStyle.css">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+		<link rel="stylesheet" type="text/css" href="./node_modules/pikaday/css/pikaday.css">
+		<link rel="stylesheet" type="text/css" href="./node_modules/pikaday/css/theme.css">
+		<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+		<script src="./node_modules/pikaday/pikaday.js"></script>
+		<script src="./node_modules/moment/moment.js"></script>
+		<script>window.$ = window.jQuery = require('jquery')</script>
+		<script src="./node_modules/leaflet-providers/leaflet-providers.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/leaflet.geodesic"></script>
+		<script>const fs = require('fs')</script>
+	</head>
+	<body>
+		<div id="title-bar">
+			<div id="title-bar-btns">
+				<button id="close-btn"><img src="./images/close.png" id = "close-image"></button>
+				<button id="max-btn"><img src="./images/max.png" id = "max-image"></button>
+				<button id="min-btn"><img src="./images/min.png" id = "min-image"></button>
+				<p>Development Stage V. 0.1.0</p>
+			</div>
+			<script>
+				const electron = require('electron')
+				const { ipcRenderer } = electron
+
+				document.getElementById("min-btn").addEventListener("click", function (e) {
+				  ipcRenderer.send('window-receive', 'minimize')
+				});
+
+				document.getElementById("max-btn").addEventListener("click", function (e) {
+				    ipcRenderer.send('window-receive', 'maximize')
+				});
+
+				document.getElementById("close-btn").addEventListener("click", function (e) {
+				  ipcRenderer.send('window-receive', 'close')
+				});
+
+			</script>
+		</div>
+		<div class="sidenav">
+			<div class="header">
+				<img src="./images/flightdash_icon.png" id ="logo">
+				<h1>FlightDash</h1>
+			</div>
+			<a id="current" href="index.html">Dashboard</a>
+			<a href="flightSearch.html">Search Flights</a>
+			<a href="account.html">Account</a>
+			<div class="bSidenav">
+				<a href="settings.html">Settings</a>
+			</div>
+		</div>
+		<div id="searchFlightsPage" class="main">
+      <div id="searchBar" class="outer-container">
+        <h1>Search Flights</h1>
+        <div class="inner-container">
+											<form id="searchBarForm">
+          <div id="searchBar-wrapper" class="wrapper">
+
+							<input type="text" id="actualSearchBar" placeholder="From Where..." value="IAD">
+							<input type="text" id="actualSearchBar" placeholder="To Where..." value="LAX">
+	            <input type="text" class="datepicker" id='departureDate' placeholder="YYYY-MM-DD" value="2021-04-15">
+							<div class="one-way-wrapper">
+
+							</div>
+							<p>One-Way?</p>
+							<input type="checkbox" id="oneWay">
+							<script>
+								$('#oneWay').change(function() {
+									if(this.checked) {
+										$('#returnDate').hide();
+									}
+									else {
+										$('#returnDate').show();
+									}
+								});
+							</script>
+							<input type="text" class="datepicker" id='returnDate' placeholder="YYYY-MM-DD" value="2021-04-23">
+							<script>
+								var picker = new Pikaday({
+									field: $('#departureDate')[0],
+									theme: 'dark-theme',
+									format: 'YYYY-MM-DD',
+								  toString(date, format) {
+										return moment(date).format('YYYY-MM-DD');
+									},
+									maxDate: moment().subtract(20, 'days').toDate(),
+									minDate: moment().subtract(15, 'days').toDate(),
+								});
+								var picker2 = new Pikaday({
+									field: $('#returnDate')[0],
+									theme: 'dark-theme',
+									format: 'YYYY-MM-DD',
+									toString(date, format) {
+										return moment(date).format('YYYY-MM-DD');
+									}
+								});
+								$('#returnDate').on("click", function () {
+									if(picker.getDate() != null) {
+										picker2.setMinDate(picker.getDate());
+									}
+								});
+								$('#departureDate').on("click", function () {
+									if(picker2.getDate() != null) {
+										picker.setMaxDate(picker2.getDate());
+									}
+								});
+							</script>
+						</form>
+          </div>
+          <button type="submit" id="search-btn">Go</button>
+					<div id="searchMap"></div>
+					<script>
+					var mymap = L.map('searchMap').setView([39.4319846,-77.8072091], 3);
+
+					L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+							attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+							maxZoom: 18,
+							id: 'mapbox/streets-v11',
+							tileSize: 512,
+							zoomOffset: -1,
+							accessToken: 'pk.eyJ1IjoibmljLXdpc3MiLCJhIjoiY2tsdngyYzl6MGRudjJxampyMXI2eDk5NiJ9.1_ZmPIX5F24SATw7fKHEnA'
+					}).addTo(mymap);
+					L.tileLayer.provider('CartoDB.DarkMatter').addTo(mymap);
+					</script>
+        </div>
+      </div>
+      <div id="searchTable" class="outer-container">
+        <div class="inner-container">
+          <div id="backgroundcolorer" class="back-wrapper">
+            <table id = "searchFlightsTable"></table>
+            <script>
+						var counter = 0;
+              $('#search-btn').on('click', function() {
+								var x = document.getElementById("searchBarForm");
+								var tableData = '';
+
+								function LatLongConversion(thisLocation) {
+									var long = thisLocation.longitude;
+									var lat = thisLocation.latitude;
+									return [long, lat];
+								}
+
+								if(x.elements[3].checked || x.elements[4] == null) {
+									$.getJSON('http://localhost:3030/flights?date=' + x.elements[2].value + '&origin=' + x.elements[1].value + '&destination=' + x.elements[0].value,
+                          function (data) {
+														tableData = '';
+														$('#searchFlightsTable').html(tableData);
+
+
+
+                      //GRABBING HEADER INFORMATION
+                      var headerInfo = Object.keys(data[0]);
+
+
+
+											tableData += '<thead><tr>';
+											tableData += '<th>' + 'Book' + '</th>';
+											tableData += '<th>' + 'Departure/Arrival' + '</th>';
+                      tableData += '<th>' + 'Duration' + '</th>';
+											tableData += '<th>' + 'Connection' + '</th>';
+											tableData += '<th>' + 'Pricing' + '</th>';
+                      tableData += '</tr></thead>';
+
+                      // ITERATING THROUGH OBJECTS
+											tableData += '<tbody id="searchTableBody">';
+                      $.each(data, function (key, value) {
+                          //CONSTRUCTION OF ROWS HAVING
+                          // DATA FROM JSON OBJECT
+													if(counter < 27) {
+	                          tableData += '<tr width="20%">';
+														tableData += '<td id="linkCell"><button onclick="toggleFunction(' + counter + ')" class="dropbtn">V</button></td>';
+														const depDateTimeInit = new Date(value[headerInfo[7]]);
+														const arrDateTimeInit = new Date(value[headerInfo[8]]);
+														var connPort = value[headerInfo[4]];
+
+														tableData += '<td>' + depDateTimeInit.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'}) + " - " + arrDateTimeInit.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'}) + '<br><h4>' + value[headerInfo[1]].code + ' - ' + value[headerInfo[2]].code + '</h4></td>';
+														tableData += '<td>' + value[headerInfo[5]].locale + '</td>';
+														if(connPort != null) {
+															tableData += '<td>' + value[headerInfo[6]].locale + " in " + connPort.code + '<br><h4>' + connPort.name + '</h4></td>';
+														}
+														else {
+															tableData += '<td>Non-Stop</td>';
+														}
+														tableData += '<td>$' + value[headerInfo[10]] + '</td>';
+														tableData += '</tr>';
+														tableData += '<tr class="dropdown-content" id="more-info' + counter + '"><td colspan ="8">Aircraft Type: ' + value[headerInfo[9]].make + ' ' + value[headerInfo[9]].model + '</td></tr>';
+														counter++;
+													}
+												});
+												tableData +='</tbody>';
+												$('#searchFlightsTable').html(tableData);
+												$('#searchFlightsTable tr td').css('width', $('searchFlightsTable').width/5);
+												hideAll();
+
+
+
+											});
+								}
+								else {
+									tableData= '';
+									$('#searchFlightsTable').html(tableData);
+									$.getJSON('http://localhost:3030/flights?date=' + x.elements[2].value + '&date2='+ x.elements[4].value + '&origin=' + x.elements[1].value + '&destination=' + x.elements[0].value,
+                          function (data) {
+
+                      //GRABBING HEADER INFORMATION
+                      var headerInfo = Object.keys(data[0]);
+											tableData += '<tr><th id="topBorders1" colspan="4">Departure Trip</th><th id="topBorders2" colspan="4">Return Trip</th></tr>';
+											tableData += '<tr>';
+											tableData += '<th>' + 'Book' + '</th>';
+											tableData += '<th>' + 'Departure/Arrival' + '</th>';
+                      tableData += '<th>' + 'Duration' + '</th>';
+											tableData += '<th>' + 'Connection' + '</th>';
+											tableData += '<th>' + 'Departure/Arrival' + '</th>';
+                      tableData += '<th>' + 'Duration' + '</th>';
+											tableData += '<th>' + 'Connection' + '</th>';
+											tableData += '<th>' + 'Pricing' + '</th>';
+                      tableData += '</tr>';
+
+                      counter = 0;
+                      // ITERATING THROUGH OBJECTS
+                      $.each(data, function (key, value) {
+                          //CONSTRUCTION OF ROWS HAVING
+                          // DATA FROM JSON OBJECT
+                          if(counter < 27) {
+                          tableData += '<tr>';
+													tableData += '<td class="linkCell"><button onclick="toggleFunction(' + counter + ')" class="dropbtn">V</button></td>';
+													const depDateTimeInit = new Date(value[headerInfo[0]].departureTime);
+													const arrDateTimeInit = new Date(value[headerInfo[0]].arrivalTime);
+													var connPort = value[headerInfo[0]].connection;
+
+													tableData += '<td>' + depDateTimeInit.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'}) + " - " + arrDateTimeInit.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'}) + '<br><h4>' + value[headerInfo[0]].origin.code + ' - ' + value[headerInfo[0]].destination.code + '</h4></td>';
+													tableData += '<td>' + value[headerInfo[0]].duration.locale + '</td>';
+													if(connPort != null) {
+														tableData += '<td>' + value[headerInfo[0]].layover.locale + " in " + connPort.code + '<br><h4>' + connPort.name + '</h4></td>';
+													}
+													else {
+														tableData += '<td>Non-Stop</td>';
+													}
+													const depDateTimeRet = new Date(value[headerInfo[1]].departureTime);
+													const arrDateTimeRet = new Date(value[headerInfo[1]].arrivalTime);
+													connPort = value[headerInfo[1]].connection;
+
+													tableData += '<td>' + depDateTimeRet.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'}) + " - " + arrDateTimeRet.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'}) + '<br><h4>' + value[headerInfo[1]].origin.code + ' - ' + value[headerInfo[1]].destination.code + '</h4></td>';
+													tableData += '<td>' + value[headerInfo[1]].duration.locale + '</td>';
+													if(connPort != null) {
+														tableData += '<td>' + value[headerInfo[1]].layover.locale + " in " + connPort.code + '<br><h4>' + connPort.name + '</h4></td>';
+													}
+													else {
+														tableData += '<td>Non-Stop</td>';
+													}
+													tableData += '<td>$' + value[headerInfo[2]] + '</td>';
+													tableData += '</tr>';
+													tableData += '<tr class="dropdown-content" id="more-info' + counter + '"><td colspan ="2"><div class="linkCell"><button onclick="bookFunction(' + counter + ')" class="dropbtn">Book Flight(s)</button></div></td><td colspan="2">Aircraft Type: ' + value[headerInfo[0]].aircraft.make + ' ' + value[headerInfo[0]].aircraft.model + '</td><td></td><td colspan="2">Aircraft Type: ' + value[headerInfo[1]].aircraft.make + ' ' + value[headerInfo[1]].aircraft.model + '</td></tr>';
+													counter++;
+													}
+											});
+											//INSERTING ROWS INTO TABLE
+											$('#searchFlightsTable').html(tableData);
+											hideAll();
+										});
+									}
+								});
+
+								function hideAll() {
+									for(let i = 0; i < counter; i++) {
+										var stringform = '#more-info' + i;
+										$(stringform).hide();
+									}
+								};
+
+								const geodesic = new L.Geodesic([]).addTo(mymap);
+								const geodesic2 = new L.Geodesic([], {color: 'red'}).addTo(mymap);
+
+								function toggleFunction(someNumber) {
+									var stringform = '#more-info' + someNumber;
+									if(!($(stringform).css('display') == 'none' || $(stringform).css("visibility") == "hidden")) {
+										hideAll();
+										geodesic.setLatLngs([]);
+									}
+									else {
+										hideAll();
+										var route;
+										var x = document.getElementById("searchBarForm");
+										if(x.elements[3].checked || x.elements[4] == null) {
+											$.getJSON('http://localhost:3030/flights?date=' + x.elements[2].value + '&origin=' + x.elements[1].value + '&destination=' + x.elements[0].value,
+		                          function (data) {
+																console.log(data[someNumber]);
+											if(data[someNumber].connection != null) {
+												route = [
+													new L.LatLng(data[someNumber].origin.location.latitude, data[someNumber].origin.location.longitude),
+													new L.LatLng(data[someNumber].connection.location.latitude, data[someNumber].connection.location.longitude),
+													new L.LatLng(data[someNumber].destination.location.latitude, data[someNumber].destination.location.longitude),
+												]
+											}
+											else {
+												route = [
+													new L.LatLng(data[someNumber].origin.location.latitude, data[someNumber].origin.location.longitude),
+													new L.LatLng(data[someNumber].destination.location.latitude, data[someNumber].destination.location.longitude),
+												]
+											}
+											geodesic.setLatLngs([]);
+											geodesic.setLatLngs(route, {color: 'red'}).addTo(mymap);
+											$(stringform).toggle();
+										});
+								}
+								else {
+									$.getJSON('http://localhost:3030/flights?date=' + x.elements[2].value + '&date2=' + x.elements[4].value + '&origin=' + x.elements[1].value + '&destination=' + x.elements[0].value,
+													function (data) {
+														console.log(data[someNumber]);
+									if(data[someNumber].initialFlight.connection != null) {
+										route = [
+											new L.LatLng(data[someNumber].initialFlight.origin.location.latitude, data[someNumber].initialFlight.origin.location.longitude),
+											new L.LatLng(data[someNumber].initialFlight.connection.location.latitude, data[someNumber].initialFlight.connection.location.longitude),
+											new L.LatLng(data[someNumber].initialFlight.destination.location.latitude, data[someNumber].initialFlight.destination.location.longitude),
+										]
+									}
+									else {
+										route = [
+											new L.LatLng(data[someNumber].initialFlight.origin.location.latitude, data[someNumber].initialFlight.origin.location.longitude),
+											new L.LatLng(data[someNumber].initialFlight.destination.location.latitude, data[someNumber].initialFlight.destination.location.longitude),
+										]
+									}
+									geodesic.setLatLngs([]);
+									geodesic.setLatLngs(route);
+									geodesic2.setLatLngs([]);
+									if(data[someNumber].returnFlight.connection != null) {
+										route = [
+											new L.LatLng(data[someNumber].returnFlight.origin.location.latitude, data[someNumber].returnFlight.origin.location.longitude),
+											new L.LatLng(data[someNumber].returnFlight.connection.location.latitude, data[someNumber].returnFlight.connection.location.longitude),
+											new L.LatLng(data[someNumber].returnFlight.destination.location.latitude, data[someNumber].returnFlight.destination.location.longitude),
+										]
+										geodesic2.addLatLng(route[0]);
+										geodesic2.addLatLng(route[1]);
+										geodesic2.addLatLng(route[2]);
+									}
+									else {
+										route = [
+											new L.LatLng(data[someNumber].returnFlight.origin.location.latitude, data[someNumber].returnFlight.origin.location.longitude),
+											new L.LatLng(data[someNumber].returnFlight.destination.location.latitude, data[someNumber].returnFlight.destination.location.longitude),
+										]
+										geodesic2.addLatLng(route[0]);
+										geodesic2.addLatLng(route[1]);
+									}
+									$(stringform).toggle();
+								});
+							}
+}
+								}
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

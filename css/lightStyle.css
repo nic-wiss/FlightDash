@@ -1,0 +1,365 @@
+
+
+/* The sidebar menu */
+
+* {
+  font-family: Montserrat, Verdana, sans-serif;
+  color: #efefef;
+}
+
+@font-face {
+  font-family: Latinka;
+  src: url("./fonts/latinka_medium.ttf");
+}
+
+html,
+body {
+  height: 100%;
+  min-height: 100%;
+  background-color: #FFFFFF;
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.header {
+  display: inline-flex;
+  padding: 5px;
+}
+
+#logo {
+  height: 32px;
+  width: 32px;
+  padding: 0 5px;
+}
+
+.sidenav {
+  display: table;
+  height: 100%;
+  width: 200px;
+  /* Set the width of the sidebar */
+  position: fixed;
+  /* Fixed Sidebar (stay in place on scroll) */
+  z-index: 1;
+  /* Stay on top */
+  top: 0;
+  /* Stay at the top */
+  left: 0;
+  background-color: #303030;
+  overflow-x: hidden;
+  /* Disable horizontal scroll */
+  padding-top: 10px;
+  padding-bottom: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.5);
+}
+
+
+/* The navigation menu links */
+
+.sidenav a {
+  padding: 12px 12px 12px 16px;
+  text-decoration: none;
+  text-align: left;
+  font-size: 18px;
+  color: #efefef;
+  display: block;
+}
+
+.sidenav a #current {
+  border-right: 5px solid blue;
+}
+
+
+/* When you mouse over the navigation links, change their color */
+
+.sidenav a:hover {
+  background-color: gray;
+}
+
+.sidenav h1 {
+  font-size: 18px;
+  margin: 6px;
+}
+
+.bSidenav {
+  display: table-row;
+  vertical-align: bottom;
+  height: 1px;
+}
+
+
+/* Style page content */
+
+.main {
+  height: 100%;
+  margin-left: 200px;
+  display: grid;
+  grid-template-columns: 520px 50%;
+  grid-template-rows: 10% 60% 30%;
+  grid-template-areas:
+    "header header header header"
+    "main main main main ."
+    "main main main main ."
+    "main main main main .";
+}
+
+#title-bar {
+  -webkit-app-region: drag;
+  height: 30px;
+  margin-top: 0;
+}
+
+#title-bar p {
+  display: inline;
+  float: right;
+  font-size: 10px;
+  margin-right: 5px;
+}
+
+#title-bar-btns img {
+  height: 16px;
+  width: 16px;
+  background-color: transparent;
+}
+
+#title-bar-btns button {
+  -webkit-app-region: no-drag;
+  display: inline;
+  float: right;
+}
+
+#upcomingFlights {
+  grid-area: main;
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 2;
+  grid-row-end: 3;
+  min-width: 350px;
+}
+
+#flightMap {
+  grid-area: main;
+  grid-column-start: 2;
+  grid-column-end: 3;
+  grid-row-start: 2;
+  grid-row-end: 3;
+}
+
+#updatesNews {
+  grid-area: main;
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-row-start: 3;
+  grid-row-end: 4;
+}
+
+#updatesNews .inner-container {
+  min-width: 98%;
+}
+
+#mapid {
+  height: 40vh;
+  border-radius: 5px;
+}
+
+.main h1 {
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-row-start: 1;
+  grid-row-end: 2;
+  justify-self: left;
+  margin-top: 3%;
+  margin-left: 20px;
+  background-color: transparent;
+}
+
+.outer-container {
+  margin: 0 20px auto;
+}
+
+.inner-container {
+  height: 100%;
+  max-width: 400px;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.5);
+  background: #303030;
+}
+
+#flightMap .inner-container {
+  max-width: 100%;
+
+}
+
+#searchBar {
+}
+
+#searchBar .inner-container {
+  width: 50vw;
+  max-width: 100%;
+  display: inline-flex;
+}
+
+#searchBar h1 {
+  margin: 20px 0 0 0;
+}
+
+#actualSearchBar {
+  font-size: 18px;
+  background-color: #1c1c1c;
+  border-radius: 5px;
+  border: 1px solid black;
+  margin: 5px;
+  width: 80%;
+  height: 20px;
+}
+
+#searchTable {
+  margin-top: 20px;
+  height: 100%;
+}
+
+#searchTable .inner-container {
+  max-width: 100%;
+  height: 83%;
+}
+
+#searchFlightsPage {
+  display: block;
+}
+
+#searchFlightsTable, #searchFlightsHeader {
+  width: 100%;
+}
+
+#backgroundcolorer {
+  background-color: #1c1c1c;
+  height: 96%;
+  border-radius: 5px;
+}
+
+#upcomingFlightsTable {
+  table-layout: fixed;
+  width: 100%;
+  background-color: transparent;
+  display: inline-table;
+  border-collapse: collapse;
+}
+
+#upcomingFlights .inner-container {
+  background: linear-gradient(#303030 49px, #1c1c1c 49px);
+}
+
+#linkCell a {
+  background-color: #303030;
+  padding: 8px 12px 8px 12px;
+  border-radius: 3px;
+  text-decoration: none;
+}
+
+
+
+th,
+td {
+  width: 25%;
+  padding: 10px;
+  text-align: center;
+}
+
+.footer {
+  margin-bottom: -50px;
+  height: 50px;
+  margin-left: 160px;
+  padding: 0px 40px;
+}
+
+
+.form-group {
+  display: grid;
+  justify-self: center;
+  font-size: 14px;
+}
+
+.form-group label {
+  margin-left: 5px;
+}
+
+#login-h1 {
+  margin: 16px;
+  text-align: center;
+  margin-bottom: 10px;
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.login-header {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+#login-logo {
+  height: 64px;
+  width: 64px;
+  padding: 0 5px;
+  margin-top: 30px;
+}
+
+.button-login {
+  display: grid;
+
+}
+
+#btn-login, #btn-submit {
+  justify-self: center;
+  border-radius: 5px;
+  background-color: #303030;
+  margin-top: 10px;
+  height: 40px;
+  width: 300px;
+  border: 1px solid black;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.5);
+}
+
+#search-btn {
+  justify-self: center;
+  border-radius: 5px;
+  margin-top: 25px;
+  background-color: #1c1c1c;
+  height: 60px;
+  width: 120px;
+  border: 1px solid black;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.5);
+}
+
+#txtUsr, #txtPwd, #txtPwd2 {
+  background-color: #303030;
+  border-radius: 5px;
+  border: 1px solid black;
+  margin: 5px;
+}
+
+#createAccountLink {
+  margin-top: 15px;
+  color: #303030;
+  text-align: center;
+  font-size: 12px;
+}
+
+#profile-picture {
+  height: 100px;
+  width: 100px;
+  border-radius: 50px;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidebar (less padding and a smaller font size) */
+
+@media screen and (max-height: 450px) {
+  .sidenav {
+    padding-top: 15px;
+  }
+  .sidenav a {
+    font-size: 18px;
+  }
+}

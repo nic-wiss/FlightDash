@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		<meta name="description" content="">
+		<meta name="keywords" content="">
+		<meta name="author" content="Nicholas Wissinger">
+		<title>FlightDash</title>
+		<link id="theme" rel="stylesheet" href="./css/darkStyle.css">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+		<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+		<script>window.$ = window.jQuery = require('jquery')</script>
+		<script src="./node_modules/leaflet-providers/leaflet-providers.js"></script>
+	</head>
+	<body>
+		<div id="title-bar">
+			<div id="title-bar-btns">
+				<button id="close-btn"><img src="./images/close.png" id = "close-image"></button>
+				<button id="max-btn"><img src="./images/max.png" id = "max-image"></button>
+				<button id="min-btn"><img src="./images/min.png" id = "min-image"></button>
+				<p>Development Stage V. 0.1.0</p>
+			</div>
+			<script>
+				const electron = require('electron')
+				const { ipcRenderer } = electron
+
+				document.getElementById("min-btn").addEventListener("click", function (e) {
+				  ipcRenderer.send('window-receive', 'minimize')
+				});
+
+				document.getElementById("max-btn").addEventListener("click", function (e) {
+				    ipcRenderer.send('window-receive', 'maximize')
+				});
+
+				document.getElementById("close-btn").addEventListener("click", function (e) {
+				  ipcRenderer.send('window-receive', 'close')
+				});
+
+			</script>
+		</div>
+		<div class="sidenav">
+			<div class="header">
+				<img src="./images/flightdash_icon.png" id ="logo">
+				<h1>FlightDash</h1>
+			</div>
+			<a id="current" href="index.html">Dashboard</a>
+			<a href="flightSearch.html">Search Flights</a>
+			<a href="account.html">Account</a>
+			<div class="bSidenav">
+				<a href="settings.html">Settings</a>
+			</div>
+		</div>
+		<div class="main">
+      <h1>Settings</h1>
+      <div id="display-page" class="outer-container">
+        <p>Display</p>
+        <div class="inner-container">
+            <p>Theme</p>
+						<div class="settingsChoice" id="theme">
+							<form class="themeForm" action="index.html" method="post">
+								<input type="radio" id="darkTheme" value="darkMode">
+								<label for="darkTheme">Dark Theme</label>
+								<br>
+								<input type="radio" id="lightTheme" value="lightMode">
+								<label for="lightTheme">Light Theme</label>
+							</form>
+							<script>
+								$(document).ready(function(){
+									$('input[type=radio]').click(function() {
+										if(this.value === 'darkMode') {
+											$('link#theme').attr('href', './css/darkStyle.css');
+											localStorage.theme = "./css/darkStyle.css";
+										}
+										if(this.value === 'lightMode') {
+											$('link#theme').attr('href', 'css/lightStyle.css');
+											localStorage.theme = "/css/lightStyle.css"
+										}
+									});
+								});
+							</script>
+						</div>
+            <p>Other Stuff</p>
+        </div>
+      </div>
+      <div id="development-page" class="outer-container">
+        <p>Dev Tools</p>
+        <div class="inner-container">
+            <p>Enable Dev Mode</p>
+            <p>Access Flight Data</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
